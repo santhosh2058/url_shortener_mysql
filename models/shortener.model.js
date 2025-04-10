@@ -1,15 +1,33 @@
-import {db} from '../config/mysql.js'
+// import {db} from '../config/mysql.js'
+import pkg from "@prisma/client";
+const { PrismaClient } =pkg;
 
+const prisma = new PrismaClient();
 export const loadLinks = async()=>{
-  const [rows] = await db.execute(`select shortCode,url from short_links;`);
-  return rows;
+  // const [rows] = await db.execute(`select shortCode,url from short_links;`);
+  // return rows;
+
+  const allLinks = await prisma.user.findMany();
+  return allLinks;
 }
 
 export const saveLinks = async (link)=>{
-  await db.execute(`insert into short_links(shortCode,url) values (?,?)`,[link.shortCode,link.url]);
+  //await db.execute(`insert into short_links(shortCode,url) values (?,?)`,[link.shortCode,link.url]);
+  await prisma.user.create({
+    data:{
+      shortCode: link.shortCode,
+      url: link.url
+    }
+  });
 }
 
 export const getLinkByShortCode= async (shortcode)=>{
-  const [rows]=await db.execute(`select url from short_links where shortCode = ?`,[shortcode]);
-  return rows.length?rows[0]:null;
+  // const [rows]=await db.execute(`select url from short_links where shortCode = ?`,[shortcode]);
+  // return rows.length?rows[0]:null;
+
+  const link = await prisma.user.findUnique({
+    where: {shortCode: shortcode}
+  })
+  console.log(link);
+  return link;
 }
